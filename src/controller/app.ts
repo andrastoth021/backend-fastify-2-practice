@@ -6,6 +6,10 @@ import { OwnerRepository } from '../repository/owner.repository';
 import { OwnerService } from '../service/owner.service';
 import { petRoutes } from './routes/pet.routes';
 import { ownerRoutes } from './routes/owner.routes';
+import { PetNotFoundError } from '../exceptions/PetNotFoundError';
+import { httpErrors } from '@fastify/sensible';
+import { OwnerNotFoundError } from '../exceptions/OwnerNotFoundError';
+import { PetAlreadyAdoptedError } from '../exceptions/PetAlreadyAdoptedError';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -27,6 +31,22 @@ export default function createApp(options = {}, dependencies: Dependencies) {
   const ownerService = new OwnerService(ownerRepository);
 
   const app = fastify(options)
+
+  app.setErrorHandler((error, request, reply) => {
+    app.log.error(error);
+    if (error instanceof PetNotFoundError) {
+      throw httpErrors.notFound(error.message);
+    }
+    else if (error instanceof OwnerNotFoundError) {
+      throw httpErrors.notFound(error.message);
+    }
+    else if (error instanceof PetAlreadyAdoptedError) {
+      throw httpErrors.conflict(error.message);
+    }
+    else {
+      throw httpErrors.internalServerError(error.message);
+    }
+  });
 
   app.decorate('petService', petService);
   app.decorate('ownerService', ownerService);
