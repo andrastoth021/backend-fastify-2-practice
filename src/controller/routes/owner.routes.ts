@@ -13,6 +13,12 @@ export const ownerRoutes: FastifyPluginAsync = async (app: FastifyInstance) => {
     { schema: putPetsToOwnersSchema },
     async (request) => {
       const { petId, ownerId } = request.params;
+      
+      // Check if owner even exists.
+      // Must have, otherwise if we provide a non-existent owner's id, the 'ownerNotFound' error is not handled.
+      // Instead we receive a 500 Internal Server Error with an SQL error message.
+      await appWithTypeProvider.ownerService.getById(ownerId);
+      
       const updated = await appWithTypeProvider.petService.adopt(petId, ownerId);
       return updated;
     }
