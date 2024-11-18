@@ -1,4 +1,5 @@
 import { OwnerToCreate } from "../entity/owner.type";
+import { OwnerNotFoundError } from "../exceptions/OwnerNotFoundError";
 import { OwnerRepository } from "../repository/owner.repository";
 
 export class OwnerService {
@@ -15,7 +16,7 @@ export class OwnerService {
   async getById(id: number) {
     const owner = await this.repository.readById(id);
     if(owner === null) {
-      throw new Error('The owner is not found.')
+      throw new OwnerNotFoundError('The owner is not found.')
     }
     return owner;
   }
