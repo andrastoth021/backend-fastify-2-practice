@@ -1,0 +1,1 @@
+export class PetAlreadyAdoptedError extends Error {}
